@@ -1,0 +1,4 @@
+L_oben  12 -> L3
+L_unten 18 -> L8
+R_oben   4 -> R2
+R_unten  7 -> R8
