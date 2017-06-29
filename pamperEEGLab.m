@@ -1,12 +1,12 @@
 % This function is called once when the figure is loaded. After that, this
-% function is never to called again, because eeglab will get cranky and end
+% function is never to be called again, because eeglab will get cranky and end
 % up being in a very bad state.
 % This function starts eeglab, loads the dataset given as a parameter and
 % then stores the events in my own datastructure.
 % The datastructure and the EEG variables are made global variables so that
 % they are accessible throughout the program.
 function EEG =  pamperEEGLab(rawdatapath, datasetName, chars, oneChannel, xdf)
-global martinsEvents ALLEEG CURRENTSET eegdata nchans srate EEG_labels
+global events ALLEEG CURRENTSET eegdata nchans srate EEG_labels
 
 disp 'eeglab setup';
 %% check if ALLEEG exists, if not, start EEGLAB and load dataset
@@ -37,7 +37,7 @@ samples = EEG.pnts;
                        
 % fill the cell array with the type of the event and the sample number in
 % which it occured. first row contains the types, second row the sample.
-martinsEvents = LoopOverEvents(chars);
+events = LoopOverEvents(chars);
 
 
 if oneChannel
@@ -51,21 +51,21 @@ else
 end
 
     %% helper function to get the events and latencies from the dataset
-    function martinsEvents = LoopOverEvents(chars)
+    function events = LoopOverEvents(chars)
     % 1768 rows, 2 columns
-    martinsEvents = cell(length(EEG.event),2);
+    events = cell(length(EEG.event),2);
     for j = 1 : length(EEG.event)
         if chars
             % first column: events in every row
-            martinsEvents{j,1} = char(EEG.event(j).type);
+            events{j,1} = char(EEG.event(j).type);
             % second column: corresponding latency in every row
-            martinsEvents{j,2} = EEG.event(j).latency;
+            events{j,2} = EEG.event(j).latency;
         else
             % first column: events in every row
-            %martinsEvents{j,1} = uint8(EEG.event(j).type);
-            martinsEvents{j,1} = EEG.event(j).type;
+            %events{j,1} = uint8(EEG.event(j).type);
+            events{j,1} = EEG.event(j).type;
             % second column: corresponding latency in every row
-            martinsEvents{j,2} = EEG.event(j).latency;
+            events{j,2} = EEG.event(j).latency;
         end
     end
     end

@@ -6,7 +6,7 @@
 % about the samplecounter and about the trialnumber.
 function SendEEGdataBlindly(leftTrial, rightTrial, leftTraining, rightTraining, char)
 
-global martinsEvents eegdata initialized running paused samplecounter
+global events eegdata initialized running paused samplecounter
 global eventcounter stopit eeg_outlet marker_outlet nchans srate handles leftOrRightTrialsCounter  
 global verbose trialCounter
 
@@ -19,7 +19,7 @@ if ~initialized
     % if we start with a samplecounter that is not the first one,
     % skip all events until here and then begin the normal replay
     if samplecounter > 1
-        while uint64(martinsEvents{eventcounter,2}) < samplecounter
+        while uint64(events{eventcounter,2}) < samplecounter
             eventcounter = eventcounter + 1;
         end
         disp(['skipped to eventcounter', ' ', num2str(eventcounter)]);
@@ -33,7 +33,7 @@ paused = false;
 starttime = clock;
 startsamples = samplecounter;
 
-% message which is expected by CLAP to indicate a sound event 
+% the message which is sent out via UDP and LSL 
 triggermsg = '3 SOUND';
 
 
@@ -88,16 +88,16 @@ while running && samplecounter < length(eegdata) && eventcounter <= samplecounte
     % whenever a sample is reached at which a marker is set in the
     % dataset send out UDP package to CLAPP to indicate, that an interesting trial has been
     % presented.
-    while uint64(martinsEvents{eventcounter,2}) <= samplecounter 
+    while uint64(events{eventcounter,2}) <= samplecounter 
         
         % have a verbose mode which shows all events that happen
         if verbose
-            disp(martinsEvents(eventcounter,1));
+            disp(events(eventcounter,1));
         end
         if char
-            event = martinsEvents(eventcounter,1);
+            event = events(eventcounter,1);
         else 
-            event = num2str(martinsEvents{eventcounter,1});
+            event = num2str(events{eventcounter,1});
         end
         % display a chunk of samples for comparison with eclipse
         chunkOfSamplesForEclipse = num2str(eegdata(1:nchans, samplecounter:samplecounter+howManySamplesForEclipse));
@@ -117,7 +117,7 @@ while running && samplecounter < length(eegdata) && eventcounter <= samplecounte
             leftOrRightTrialsCounter = leftOrRightTrialsCounter + 1;
         end
         
-        if eventcounter < length(martinsEvents)
+        if eventcounter < length(events)
             eventcounter = eventcounter + 1;
         else
             % we are done and reached the last event, stop everything

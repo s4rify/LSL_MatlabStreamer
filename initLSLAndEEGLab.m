@@ -24,7 +24,7 @@ chns = eeg_info.desc().append_child('channels');
 %              'L3' , 'L1' , 'L2', 'L4', '4BRef', 'L6', 'L8'}
 for i = 1: length(EEG_labels)
     ch = chns.append_child('channel');
-    ch.append_child_value('label',EEG_labels{i}); % append the name od the channel from the dataset
+    ch.append_child_value('label',EEG_labels{i}); % append the name of the channel from the dataset
     ch.append_child_value('unit','microvolts');
     ch.append_child_value('type','EEG');
 end
