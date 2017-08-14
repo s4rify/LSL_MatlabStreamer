@@ -5,29 +5,21 @@
 % then stores the events in my own datastructure.
 % The datastructure and the EEG variables are made global variables so that
 % they are accessible throughout the program.
-function EEG =  pamperEEGLab(rawdatapath, datasetName, chars, oneChannel, xdf)
+function EEG =  pamperEEGLab(rawdatapath, datasetName, oneChannel)
 global events ALLEEG CURRENTSET eegdata nchans srate EEG_labels
 
 disp 'eeglab setup';
-%% check if ALLEEG exists, if not, start EEGLAB and load dataset
-%rawdatapath = '../../Data/RawDataFromMartin/';
-%if  evalin( 'base', 'exist(''EEG'',''var'') == 0' ) || isempty(EEG)
-    disp('eeglab is being loaded..');
-    % start eeglab
-    [ALLEEG, EEG, CURRENTSET, ALLCOM] = eeglab; %#ok<*ASGLU>
-    % load dataset
-    EEG = pop_loadset('filename',datasetName,'filepath',rawdatapath);
-    % copy changes to ALLEEG
-    [ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG);
-    
-    eeglab redraw
-%end
 
+disp('eeglab is being loaded..');
+% start eeglab
+[ALLEEG, EEG, CURRENTSET, ALLCOM] = eeglab; %#ok<*ASGLU>
+% load dataset
+EEG = pop_loadset('filename',datasetName,'filepath',rawdatapath);
+% copy changes to ALLEEG
+[ALLEEG, EEG, CURRENTSET] = eeg_store( ALLEEG, EEG);
 
-if xdf
-    EEG = renameEvents(EEG);
-    eeg_eventtypes(EEG)
-end
+eeglab redraw
+
 % eeglab was started successfully, use info and data
 eegdata = EEG.data;
 nchans = EEG.nbchan;
@@ -37,7 +29,7 @@ samples = EEG.pnts;
                        
 % fill the cell array with the type of the event and the sample number in
 % which it occured. first row contains the types, second row the sample.
-events = LoopOverEvents(chars);
+events = LoopOverEvents();
 
 
 if oneChannel
@@ -51,23 +43,14 @@ else
 end
 
     %% helper function to get the events and latencies from the dataset
-    function events = LoopOverEvents(chars)
-    % 1768 rows, 2 columns
-    events = cell(length(EEG.event),2);
-    for j = 1 : length(EEG.event)
-        if chars
+    function events = LoopOverEvents()
+        events = cell(length(EEG.event),2);
+        for j = 1 : length(EEG.event)
             % first column: events in every row
             events{j,1} = char(EEG.event(j).type);
             % second column: corresponding latency in every row
             events{j,2} = EEG.event(j).latency;
-        else
-            % first column: events in every row
-            %events{j,1} = uint8(EEG.event(j).type);
-            events{j,1} = EEG.event(j).type;
-            % second column: corresponding latency in every row
-            events{j,2} = EEG.event(j).latency;
         end
-    end
     end
 
 end

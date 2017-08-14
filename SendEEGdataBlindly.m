@@ -4,17 +4,16 @@
 % It will provide Information in the GUI about which kind of trial has been
 % presented (and which would therefore be the correct classification result),
 % about the samplecounter and about the trialnumber.
-function SendEEGdataBlindly(leftTrial, rightTrial, leftTraining, rightTraining, char)
+function SendEEGdataBlindly()
 
 global events eegdata initialized running paused samplecounter
-global eventcounter stopit eeg_outlet marker_outlet nchans srate handles leftOrRightTrialsCounter  
-global verbose trialCounter
+global eventcounter stopit eeg_outlet marker_outlet nchans srate handles  
+ 
 
 if ~initialized
     startSampleCounter = 1;
     initLSLAndEEGLab(startSampleCounter);
-    trialCounter = 0;
-    verbose = false;
+    
     
     % if we start with a samplecounter that is not the first one,
     % skip all events until here and then begin the normal replay
@@ -33,18 +32,10 @@ paused = false;
 starttime = clock;
 startsamples = samplecounter;
 
-% the message which is sent out via UDP and LSL 
-triggermsg = '3 SOUND';
-
-
-howManySamplesForEclipse = 50;
-precision = 10;
+precision = 2;
 exampleSample_idx = 1300;
 
 
-% The outer loop iterates through the array containing the events and the
-% sample at which they occured.
-%
 % the iterator variable is increased whenever
 % a sample was found in the inner loop (eegdata) at which a marker has been
 % set in the data. if this marker is left or right trial, a trigger is
@@ -67,7 +58,7 @@ while running && samplecounter < length(eegdata) && eventcounter <= samplecounte
         disp 'terminating: we are more than 10 seconds late';
         running = false;
         paused = true;
-    end;
+    end
     
     if ~running || paused
         running = false;
@@ -89,33 +80,24 @@ while running && samplecounter < length(eegdata) && eventcounter <= samplecounte
     % dataset send out UDP package to CLAPP to indicate, that an interesting trial has been
     % presented.
     while uint64(events{eventcounter,2}) <= samplecounter 
+
+        event = num2str(events{eventcounter,1});
+  
+        % the message which is sent out via UDP and LSL 
+        triggermsg = event;
         
-        % have a verbose mode which shows all events that happen
-        if verbose
-            disp(events(eventcounter,1));
-        end
-        if char
-            event = events(eventcounter,1);
-        else 
-            event = num2str(events{eventcounter,1});
-        end
-        % display a chunk of samples for comparison with eclipse
-        chunkOfSamplesForEclipse = num2str(eegdata(1:nchans, samplecounter:samplecounter+howManySamplesForEclipse));
-        sampleInfoForTrigger = num2str(eegdata(12, samplecounter+exampleSample_idx), precision);
+        % display one sample from the current chunk for comparison reasons
+        sampleInfoForTrigger = num2str(eegdata(12, samplecounter + exampleSample_idx), precision);
         
         % if any interesting event occurs, send out LSL and UDP marker
-        if strcmp(event, leftTrial)   || ...
-           strcmp(event, rightTrial)  || ...
-           strcmp(event, leftTraining)|| ...
-           strcmp(event, rightTraining)
-            disp([ 'M_Trial #', num2str(leftOrRightTrialsCounter), ' ', event , ' ', sampleInfoForTrigger]);
-            sendUDPSignal(strcat(triggermsg, ':', num2str(leftOrRightTrialsCounter), ':', sampleInfoForTrigger));
-            marker_outlet.push_sample({strcat(triggermsg, ':', num2str(leftOrRightTrialsCounter), ':', sampleInfoForTrigger)});
-            % display which trial we just sent out in the GUI
-            set(handles.leftorRightTag,'String', event);
-            set(handles.TrialCounterDisplay,'String', num2str(leftOrRightTrialsCounter));
-            leftOrRightTrialsCounter = leftOrRightTrialsCounter + 1;
-        end
+        disp([ 'M_Trial #', num2str(eventcounter), ' ', event , ' ', sampleInfoForTrigger]);
+        
+        sendUDPSignal(strcat(triggermsg, ':', num2str(eventcounter), ':', sampleInfoForTrigger));
+        marker_outlet.push_sample({strcat(triggermsg, ':', num2str(eventcounter), ':', sampleInfoForTrigger)});
+       
+        % display which trial we just sent out in the GUI
+        set(handles.leftorRightTag,'String', event);
+        set(handles.TrialCounterDisplay,'String', num2str(eventcounter));
         
         if eventcounter < length(events)
             eventcounter = eventcounter + 1;
@@ -134,7 +116,6 @@ if samplecounter >= length(eegdata)
     paused = false;
     samplecounter = 1;
     eventcounter = 1;
-    leftOrRightTrialsCounter = 1;
 end
 
 

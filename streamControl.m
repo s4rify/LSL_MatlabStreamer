@@ -2,7 +2,7 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % ENTRY POINT FOR THE STREAMER GUI
-% requires: eeglab with load_xdf plugin, LSL liobraries for matlab
+% requires: eeglab with load_xdf plugin, LSL libraries for Matlab
 %
 % insert path and filename at the indicated positions 
 % eeglab will load dataset and stream the eeg data alongside with the
@@ -59,39 +59,32 @@ end
 % End initialization code - DO NOT EDIT
 
 % --- Executes just before streamControl is made visible.
-function streamControl_OpeningFcn(hObject, eventdata, h, varargin)
+function streamControl_OpeningFcn(hObject, ~, h, varargin)
 % This function has no output args, see OutputFcn.
 % hObject    handle to figure
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 % varargin   command line arguments to streamControl (see VARARGIN)
 
-global handles xdf
+global handles 
 handles = h;
 
 % Call this function once when creating the figure so that eeglab is being
 % started once. It will load the given dataset.
-xdf = true;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INSERT YOUR PATH HERE 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-rawdatapath = ['.'];
+rawdatapath = '.';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INSERT YOUR FILENAME HERE 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fname = 'mb.set';
 
-chars = false;
 oneChannel = false;
-EEG = pamperEEGLab(rawdatapath, fname, chars, oneChannel, xdf);
-
-% rawdatapath = '../../Data/RawDataFromMartin/';
-% fname = 'TESTsmarting_ica.set';
-% pamperEEGLab(rawdatapath, fname, true, false);
-% matlab = true;
-
+pamperEEGLab(rawdatapath, fname, oneChannel);
 initializeReplayerState();
 
 
@@ -106,7 +99,7 @@ guidata(hObject, h);
 % with existing figure properties.  See the output of set(figure) for
 % a list of figure properties.
 if(nargin > 3)
-    for index = 1:2:(nargin-3),
+    for index = 1:2:(nargin-3)
         if nargin-3==index, break, end
         switch lower(varargin{index})
          case 'title'
@@ -149,7 +142,7 @@ set(hObject, 'Units', OldUnits);
 % and questIconMap
 load dialogicons.mat
 
-IconData=questIconData;
+
 questIconMap(256,:) = get(h.figure1, 'Color');
 IconCMap=questIconMap;
 
@@ -212,7 +205,8 @@ end
     
 if isequal(get(hObject,'CurrentKey'),'return')
     uiresume(handles.figure1);
-end    
+end 
+
 
 
 % --- Executes on button press in StartEEGStream.
@@ -222,37 +216,9 @@ function StartEEGStream_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 
-global running xdf
+global running 
 if ~running
-    
-% 1 = training left
-% 2 = training right
-% 3 = trial left
-% 4 = trial right
-% 5 = feedback left
-% 6 = feedback right
-% 7 = feedback timeout
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% INSERT YOUR EVENT MARKER NAMES HERE 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-global leftTrial rightTrial leftTraining rightTraining
-
-leftTrial = '3';
-rightTrial = '4';
-leftTraining = '1';
-rightTraining = '2'; 
-
-
-if xdf
-   leftTrial = 'sound_left';
-   rightTrial = 'sound_right';
-   leftTraining = 'sound_left_cal';
-   rightTraining = 'sound_right_cal';  
-end
-chars = false;
-SendEEGdataBlindly(leftTrial, rightTrial, leftTraining, rightTraining, chars);
+SendEEGdataBlindly();
 end
 
 
@@ -284,12 +250,10 @@ function ResumeEEGStream_Callback(hObject, eventdata, handles)
 % eventdata  reserved - to be defined in a future version of MATLAB
 % handles    structure with handles and user data (see GUIDATA)
 global running paused
-global leftTrial rightTrial leftTraining rightTraining
 
 paused = false;
 if ~running
-
-SendEEGdataBlindly(leftTrial, rightTrial, leftTraining, rightTraining, false);
+    SendEEGdataBlindly();
 end
 
 
