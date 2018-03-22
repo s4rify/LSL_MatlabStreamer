@@ -76,12 +76,12 @@ handles = h;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INSERT YOUR PATH HERE 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-rawdatapath = '.';
+rawdatapath = 'datasets/';
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % INSERT YOUR FILENAME HERE 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-fname = 'mb.set';
+fname = input('type in dataset name lying in datasets folder: ', 's');
 
 oneChannel = false;
 pamperEEGLab(rawdatapath, fname, oneChannel);
