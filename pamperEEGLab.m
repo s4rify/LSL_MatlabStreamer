@@ -36,7 +36,7 @@ if oneChannel
     EEG_labels{1} = EEG.chanlocs(1).labels;
 else 
     % store labels from the dataset into EEG_labels
-    for i = 1 : 18
+    for i = 1 : EEG.nbchan
         EEG_labels{i} = EEG.chanlocs(i).labels;
     end
     

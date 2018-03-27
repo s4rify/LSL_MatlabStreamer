@@ -8,7 +8,7 @@ function SendEEGdataBlindly()
 
 global events eegdata initialized running paused samplecounter
 global eventcounter stopit eeg_outlet marker_outlet nchans srate handles  
- 
+
 
 if ~initialized
     startSampleCounter = 1;
@@ -72,6 +72,7 @@ while running && samplecounter < length(eegdata) && eventcounter <= samplecounte
 
     eegsample = eegdata(1:nchans,samplecounter);
     eeg_outlet.push_sample(double(eegsample));
+    %pause(0.01)
     
     % display at which sample we currently are in the GUI
     set(handles.SampleCounterDisplay,'String', num2str(samplecounter));
@@ -87,7 +88,7 @@ while running && samplecounter < length(eegdata) && eventcounter <= samplecounte
         triggermsg = event;
         
         % display one sample from the current chunk for comparison reasons
-        sampleInfoForTrigger = num2str(eegdata(12, samplecounter + exampleSample_idx), precision);
+        sampleInfoForTrigger = num2str(eegdata(1, samplecounter + exampleSample_idx), precision);
         
         % if any interesting event occurs, send out LSL and UDP marker
         disp([ 'M_Trial #', num2str(eventcounter), ' ', event , ' ', sampleInfoForTrigger]);
